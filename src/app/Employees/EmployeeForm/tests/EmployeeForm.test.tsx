@@ -12,6 +12,7 @@ import { SettingsProvider } from '@/hooks/SettingsContext';
 import { getTheme } from '@/themes/theme';
 import { server } from '@/test/server';
 import { mockEmployee } from '@/test/handlers';
+import { suppressConsoleError } from '@/test/suppressConsoleError';
 import ErrorBoundary from '@/hoc/ErrorBoundary';
 import EmployeeFormPage from '../index';
 
@@ -73,16 +74,26 @@ describe('EmployeeFormPage', () => {
   });
 
   it('renders the employee name as the heading and pre-fills the form in edit mode', async () => {
-    server.use(http.get(`${API_BASE_URL}/employees/emp-1`, () => HttpResponse.json(mockEmployee)));
+    server.use(
+      http.get(`${API_BASE_URL}/employees/emp-1`, () => HttpResponse.json(mockEmployee)),
+      http.get(`${API_BASE_URL}/countries`, () =>
+        HttpResponse.json([{ id: 'country-1', name: 'United States', code: 'US' }]),
+      ),
+    );
 
     renderAtRoute('/employees/emp-1/edit');
 
     expect(await screen.findByRole('heading', { name: 'Ada Lovelace' })).toBeInTheDocument();
+    // Wait for the department/country lookups to resolve so the selects'
+    // pre-filled values match a loaded option, instead of asserting mid-fetch.
+    expect(await screen.findByText('Engineering')).toBeInTheDocument();
+    expect(await screen.findByText('United States')).toBeInTheDocument();
     expect(screen.getByLabelText('First name')).toHaveValue('Ada');
     expect(screen.getByRole('button', { name: 'Save changes' })).toBeInTheDocument();
   });
 
   it('throws (caught by ErrorBoundary) when the employee cannot be loaded in edit mode', async () => {
+    const restoreConsoleError = suppressConsoleError();
     server.use(
       http.get(`${API_BASE_URL}/employees/missing`, () => new HttpResponse(null, { status: 404 })),
     );
@@ -90,5 +101,6 @@ describe('EmployeeFormPage', () => {
     renderAtRoute('/employees/missing/edit');
 
     expect(await screen.findByText('Whoops! Something went wrong.')).toBeInTheDocument();
+    restoreConsoleError();
   });
 });

@@ -12,6 +12,7 @@ import { SettingsProvider } from '@/hooks/SettingsContext';
 import { getTheme } from '@/themes/theme';
 import { server } from '@/test/server';
 import { mockEmployee } from '@/test/handlers';
+import { suppressConsoleError } from '@/test/suppressConsoleError';
 import ErrorBoundary from '@/hoc/ErrorBoundary';
 import EmployeeDetailPage from '../index';
 
@@ -80,6 +81,7 @@ describe('EmployeeDetailPage', () => {
   });
 
   it('throws (caught by ErrorBoundary) when the employee cannot be loaded', async () => {
+    const restoreConsoleError = suppressConsoleError();
     server.use(
       http.get(`${API_BASE_URL}/employees/missing`, () => new HttpResponse(null, { status: 404 })),
     );
@@ -87,5 +89,6 @@ describe('EmployeeDetailPage', () => {
     renderAtEmployeeRoute('missing');
 
     expect(await screen.findByText('Whoops! Something went wrong.')).toBeInTheDocument();
+    restoreConsoleError();
   });
 });

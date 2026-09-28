@@ -3,6 +3,7 @@ import { screen } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { renderWithProviders } from '@/test/renderWithProviders';
 import { server } from '@/test/server';
+import { suppressConsoleError } from '@/test/suppressConsoleError';
 import ErrorBoundary from '@/hoc/ErrorBoundary';
 import { SalaryDistributionChart } from '../index';
 
@@ -23,6 +24,7 @@ describe('SalaryDistributionChart', () => {
   });
 
   it('throws when the fetch fails, caught by an ErrorBoundary', async () => {
+    const restoreConsoleError = suppressConsoleError();
     server.use(http.get(`${API_BASE_URL}/analytics/distribution`, () => HttpResponse.error()));
 
     renderWithProviders(
@@ -32,6 +34,7 @@ describe('SalaryDistributionChart', () => {
     );
 
     expect(await screen.findByText('Whoops! Something went wrong.')).toBeInTheDocument();
+    restoreConsoleError();
   });
 
   it('renders EmptyState when no buckets match the selected currency', async () => {

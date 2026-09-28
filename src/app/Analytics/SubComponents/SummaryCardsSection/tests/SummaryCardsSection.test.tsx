@@ -3,6 +3,7 @@ import { screen } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import { renderWithProviders } from '@/test/renderWithProviders';
 import { server } from '@/test/server';
+import { suppressConsoleError } from '@/test/suppressConsoleError';
 import ErrorBoundary from '@/hoc/ErrorBoundary';
 import { SummaryCardsSection } from '../index';
 
@@ -24,6 +25,7 @@ describe('SummaryCardsSection', () => {
   });
 
   it('throws on fetch failure, caught by an ErrorBoundary', async () => {
+    const restoreConsoleError = suppressConsoleError();
     server.use(http.get(ENDPOINT, () => HttpResponse.error()));
 
     renderWithProviders(
@@ -33,6 +35,7 @@ describe('SummaryCardsSection', () => {
     );
 
     expect(await screen.findByText('Whoops! Something went wrong.')).toBeInTheDocument();
+    restoreConsoleError();
   });
 
   it('renders summary cards once data resolves', async () => {

@@ -4,6 +4,7 @@ import { HttpResponse, http } from 'msw';
 import { renderWithProviders } from '@/test/renderWithProviders';
 import { server } from '@/test/server';
 import { mockEmployee } from '@/test/handlers';
+import { suppressConsoleError } from '@/test/suppressConsoleError';
 import ErrorBoundary from '@/hoc/ErrorBoundary';
 import EmployeeListPage from '../index';
 
@@ -19,6 +20,7 @@ describe('EmployeeListPage (render)', () => {
   }, 15000);
 
   it('throws (caught by an ErrorBoundary) when the employee list fails to load', async () => {
+    const restoreConsoleError = suppressConsoleError();
     server.use(http.get(`${API_BASE_URL}/employees`, () => HttpResponse.error()));
 
     renderWithProviders(
@@ -30,6 +32,7 @@ describe('EmployeeListPage (render)', () => {
     expect(
       await screen.findByText('Whoops! Something went wrong.', {}, { timeout: 10000 }),
     ).toBeInTheDocument();
+    restoreConsoleError();
   }, 15000);
 
   it('opens the view drawer with employee profile and salary history when View is clicked', async () => {
