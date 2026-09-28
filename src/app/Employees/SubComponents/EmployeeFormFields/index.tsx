@@ -218,6 +218,15 @@ export function EmployeeFormFields({ existingEmployee }: EmployeeFormFieldsProps
                         {dept.name}
                       </MenuItem>
                     ))}
+                    {existingEmployee &&
+                    !departments.some((dept) => dept.id === existingEmployee.department.id) ? (
+                      // Lookups haven't finished loading yet — keep the
+                      // employee's current department selectable so the
+                      // select's value always matches an option.
+                      <MenuItem value={existingEmployee.department.id}>
+                        {existingEmployee.department.name}
+                      </MenuItem>
+                    ) : null}
                   </TextField>
                 )}
               />
@@ -242,6 +251,13 @@ export function EmployeeFormFields({ existingEmployee }: EmployeeFormFieldsProps
                         {country.name}
                       </MenuItem>
                     ))}
+                    {existingEmployee &&
+                    !countries.some((country) => country.id === existingEmployee.country.id) ? (
+                      // Same as above, for the employee's current country.
+                      <MenuItem value={existingEmployee.country.id}>
+                        {existingEmployee.country.name}
+                      </MenuItem>
+                    ) : null}
                   </TextField>
                 )}
               />

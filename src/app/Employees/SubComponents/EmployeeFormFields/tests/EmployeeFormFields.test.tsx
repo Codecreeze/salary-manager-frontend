@@ -44,8 +44,18 @@ describe('EmployeeFormFields', () => {
     expect(screen.getByLabelText('Starting salary')).toBeInTheDocument();
   });
 
-  it('pre-fills fields and hides initial-salary inputs in edit mode', () => {
+  it('pre-fills fields and hides initial-salary inputs in edit mode', async () => {
+    server.use(
+      http.get(`${API_BASE_URL}/countries`, () =>
+        HttpResponse.json([{ id: 'country-1', name: 'United States', code: 'US' }]),
+      ),
+    );
     renderWithProviders(<EmployeeFormFields existingEmployee={employee} />);
+
+    // Wait for the departments/countries lookups to resolve so the selects'
+    // pre-filled values match a loaded option, instead of asserting mid-fetch.
+    expect(await screen.findByText('Engineering')).toBeInTheDocument();
+    expect(await screen.findByText('United States')).toBeInTheDocument();
 
     expect(screen.getByLabelText('First name')).toHaveValue('Ada');
     expect(screen.getByLabelText('Last name')).toHaveValue('Lovelace');
