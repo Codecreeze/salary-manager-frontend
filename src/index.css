@@ -1,0 +1,36 @@
+/* Apply globally to all elements with scrollbars */
+::-webkit-scrollbar-button {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* Optional: To guarantee WebKit scrollbars look uniform without arrows, 
+   it is best practice to explicitly define the rest of the scrollbar */
+::-webkit-scrollbar {
+  width: 6px;  /* Vertical scrollbar width */
+  height: 4px; /* Horizontal scrollbar height */
+}
+
+::-webkit-scrollbar-track {
+  background: transparent; /* Makes the track background invisible */
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1; /* Color of the draggable scrollbar handle */
+  border-radius: 4px;   /* Rounded corners for the handle */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8; /* Darkens the handle on hover */
+}
+
+/* Remove number input spinner arrows globally. These are UA-shadow
+   pseudo-elements (WebKit) / a UA `appearance` (Firefox) that MUI's `sx`/
+   theme styling APIs cannot target, so this lives here as plain global CSS
+   instead — same class of exception as the scrollbar reset above. */
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
