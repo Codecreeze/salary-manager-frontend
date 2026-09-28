@@ -1,0 +1,21 @@
+import { fileURLToPath, URL } from 'node:url';
+import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vitest/config';
+
+// Separate from vite.config.ts (which wires up the rolldown/react-compiler
+// babel plugin for production builds) — tests just need plain React JSX
+// transform + jsdom, so we keep this config minimal and fast.
+export default defineConfig({
+  plugins: [react()],
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+    },
+  },
+  test: {
+    environment: 'jsdom',
+    setupFiles: ['./src/test/setup.ts'],
+    css: false,
+    restoreMocks: true,
+  },
+});
